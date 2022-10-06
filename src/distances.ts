@@ -6,8 +6,13 @@ type Coordinate = {
   longitude: number;
 };
 
+const MAXIMUM_DISTANCE = 90 * 90 + 180 * 180;
+
 // https://stackoverflow.com/a/65799152/5225716
-function distanceBetween(coord1: Coordinate, coord2: Coordinate) {
+function distanceBetween(coord1: Coordinate, coord2?: Coordinate) {
+  if (!coord2) {
+    return MAXIMUM_DISTANCE;
+  }
   if (
     coord1.latitude == coord2.latitude &&
     coord1.longitude == coord2.longitude
@@ -36,27 +41,43 @@ function distanceBetween(coord1: Coordinate, coord2: Coordinate) {
   return dist;
 }
 
-export function closestBranchTo(
+export function branchLocation(branch: Branch) {
+  if (!branch.PostalAddress.GeoLocation) return undefined;
+  return {
+    latitude: parseFloat(
+      branch.PostalAddress.GeoLocation.GeographicCoordinates.Latitude,
+    ),
+    longitude: parseFloat(
+      branch.PostalAddress.GeoLocation.GeographicCoordinates.Longitude,
+    ),
+  };
+}
+
+type BranchWithDistance = {
+  branch: Branch;
+  distance: number;
+};
+
+const branchWithDistanceFrom =
+  (location: Location.LocationGeocodedLocation) =>
+  (branch: Branch): BranchWithDistance => ({
+    branch,
+    distance: distanceBetween(location, branchLocation(branch)),
+  });
+
+const sortBranchesByDistance = (a: BranchWithDistance, b: BranchWithDistance) =>
+  a.distance < b.distance ? -1 : 1;
+
+const branchWithoutDistance = (branch: BranchWithDistance) => branch.branch;
+
+export function closestBranchesTo(
+  numberOfBranches: number,
   location: Location.LocationGeocodedLocation,
   branches: Branch[],
-): Branch | undefined {
-  let closestBranch = undefined;
-  let closestDistance = Number.MAX_VALUE;
-  branches.forEach((branch) => {
-    if (branch.PostalAddress.GeoLocation) {
-      const distance = distanceBetween(location, {
-        latitude: parseFloat(
-          branch.PostalAddress.GeoLocation.GeographicCoordinates.Latitude,
-        ),
-        longitude: parseFloat(
-          branch.PostalAddress.GeoLocation.GeographicCoordinates.Longitude,
-        ),
-      });
-      if (distance < closestDistance) {
-        closestBranch = branch;
-        closestDistance = distance;
-      }
-    }
-  });
-  return closestBranch;
+) {
+  return branches
+    .map(branchWithDistanceFrom(location))
+    .sort(sortBranchesByDistance)
+    .map(branchWithoutDistance)
+    .slice(0, numberOfBranches);
 }

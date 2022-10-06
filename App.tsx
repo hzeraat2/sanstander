@@ -7,7 +7,7 @@ import Map from './src/Map';
 import Spinner from './src/Spinner';
 import useLoading from './src/useLoading';
 import { Branch } from './src/Branch';
-import { closestBranchTo } from './src/distances';
+import { closestBranchesTo } from './src/distances';
 import BranchDetails from './src/BranchDetails';
 
 export default function App() {
@@ -16,7 +16,8 @@ export default function App() {
   const [closest, setClosest] = useState<undefined | Branch>();
   useEffect(() => {
     if (branches && typeof search === 'object') {
-      setClosest(closestBranchTo(search, branches));
+      const [closestBranch] = closestBranchesTo(1, search, branches);
+      setClosest(closestBranch);
     } else {
       setClosest(undefined);
     }
@@ -25,20 +26,22 @@ export default function App() {
     <View style={styles.container}>
       <StatusBar style="auto" />
       <Map closest={closest} />
-      {state === 'ready' ? (
-        <>
-          <BranchesInput search={search} setSearch={setSearch} />
-          {closest && <BranchDetails branch={closest} />}
-        </>
-      ) : state === 'error' ? (
-        <View style={styles.centred}>
-          <Text style={styles.error}>An error has occurred</Text>
-        </View>
-      ) : (
-        <View style={styles.centred}>
-          <Spinner height={60} />
-        </View>
-      )}
+      <View style={styles.footer}>
+        {state === 'ready' ? (
+          <>
+            <BranchesInput search={search} setSearch={setSearch} />
+            {closest && <BranchDetails branch={closest} />}
+          </>
+        ) : state === 'error' ? (
+          <View style={styles.centred}>
+            <Text style={styles.error}>An error has occurred</Text>
+          </View>
+        ) : (
+          <View style={styles.centred}>
+            <Spinner height={60} />
+          </View>
+        )}
+      </View>
     </View>
   );
 }
@@ -59,5 +62,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  footer: {
+    flex: 0.5,
+    padding: 20,
   },
 });

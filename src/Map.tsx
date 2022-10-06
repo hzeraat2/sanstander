@@ -8,10 +8,10 @@ export default function Map({ closest }: { closest: Branch | undefined }) {
       <MapView
         style={styles.map}
         initialRegion={{
-          latitude: 55.77,
-          latitudeDelta: 11.03,
-          longitude: -2.82,
-          longitudeDelta: 11.35,
+          latitude: 54.9,
+          latitudeDelta: 9.278,
+          longitude: -4.2605,
+          longitudeDelta: 12.81,
         }}>
         {closest && closest.PostalAddress.GeoLocation && (
           <Marker
@@ -45,12 +45,15 @@ export default function Map({ closest }: { closest: Branch | undefined }) {
 
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject,
+    flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  map: StyleSheet.absoluteFillObject,
+  map: {
+    flex: 1,
+    width: '100%',
+  },
   callout: {
     padding: 5,
     backgroundColor: '#ffffffa0',
