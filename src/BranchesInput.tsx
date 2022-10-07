@@ -27,7 +27,7 @@ export default function BranchesInput({
     }
   }, [input]);
   return (
-    <View style={styles.container}>
+    <>
       <TextInput
         value={input}
         onChangeText={setInput}
@@ -38,15 +38,11 @@ export default function BranchesInput({
       <View style={styles.result}>
         <InputResults search={search} input={input} />
       </View>
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    marginTop: 80,
-    marginHorizontal: 20,
-  },
   result: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -54,6 +50,8 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: '#fff',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#ccc',
     fontFamily: 'textRegular',
     fontSize: 18,
     paddingVertical: 5,
